@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipieLandAPI", "RecipieLandAPI\RecipieLandAPI.csproj", "{D765053D-0F97-46B3-B19D-51C5D28CE6AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D765053D-0F97-46B3-B19D-51C5D28CE6AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D765053D-0F97-46B3-B19D-51C5D28CE6AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D765053D-0F97-46B3-B19D-51C5D28CE6AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D765053D-0F97-46B3-B19D-51C5D28CE6AD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49812A32-B23D-4E50-9F0E-76AEECAD3A0A}
+	EndGlobalSection
+EndGlobal
