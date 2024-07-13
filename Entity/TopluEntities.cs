@@ -98,11 +98,12 @@ namespace RecipieLandAPI.Entity
         public ICollection<UserLikedCategory> LikeCategoryUsers { get; set; }
         public ICollection<UserLikedRecipies> LikedRecipies { get; set; }
         public ICollection<UserFollowing> Followers { get; set; }
-        public string Biography { get; set; }
-        public string Location { get; set; }
-        public string Profession { get; set; }
-        public string WebSite { get; set; }
-        public string AvatarUrl { get; set; }
+        public string? Biography { get; set; }
+        public string? Location { get; set; }
+        public string? Profession { get; set; }
+        public string? WebSite { get; set; }
+        public string? AvatarUrl { get; set; }
+        public string Name { get; set; }
     }
 
 

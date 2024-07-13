@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\atill\\source\\repos\\RecipieLandAPI\\RecipieLandAPI\\RecipieLandAPI.csproj": {}
+    "C:\\Users\\pc\\RecipieLandAPI\\RecipieLandAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\atill\\source\\repos\\RecipieLandAPI\\RecipieLandAPI\\RecipieLandAPI.csproj": {
+    "C:\\Users\\pc\\RecipieLandAPI\\RecipieLandAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\atill\\source\\repos\\RecipieLandAPI\\RecipieLandAPI\\RecipieLandAPI.csproj",
+        "projectUniqueName": "C:\\Users\\pc\\RecipieLandAPI\\RecipieLandAPI.csproj",
         "projectName": "RecipieLandAPI",
-        "projectPath": "C:\\Users\\atill\\source\\repos\\RecipieLandAPI\\RecipieLandAPI\\RecipieLandAPI.csproj",
-        "packagesPath": "C:\\Users\\atill\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\atill\\source\\repos\\RecipieLandAPI\\RecipieLandAPI\\obj\\",
+        "projectPath": "C:\\Users\\pc\\RecipieLandAPI\\RecipieLandAPI.csproj",
+        "packagesPath": "C:\\Users\\pc\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\pc\\RecipieLandAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\atill\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\pc\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -92,7 +92,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
         }
       }
     }

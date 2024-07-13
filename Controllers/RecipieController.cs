@@ -33,41 +33,174 @@ namespace RecipieLandAPI.Controllers
                 if (userRecipies.Count > 0)
                 {
                     List<GetRecipies> recipies = new List<GetRecipies>();
-                    try { 
-                    recipies = userRecipies.Select(x => new GetRecipies
+                    try
                     {
-                        RecipieId = x.Recipie.Id.ToString(),
-                        Calories = x.Recipie.Calories,
-                        Carb = x.Recipie.Carb,
-                        CategoryID = x.Recipie.CategoryID.ToString(),
-                        CategoryName = x.Recipie.Category.CategoryName,
-                        Description = x.Recipie.Description,
-                        Fat = x.Recipie.Fat,
-                        ImageUrl = x.Recipie.ImageUrl,
-                        PreparationTime = x.Recipie.PreparationTime,
-                        Protein = x.Recipie.Protein,
-                        RecipieSteps = x.Recipie.RecipieSteps.OrderBy(x => x.StepNumber).Select(x => new GetRecipieSteps
+                        recipies = userRecipies.Select(x => new GetRecipies
                         {
-                            Description = x.Description,
-                            Order = x.StepNumber,
-                            RecipieID = x.Id.ToString(),
-                        }).ToList(),
-                        RecipieNutritions = _context.RecipieNutritions.Where(y => y.RecipieId == x.Id).Include(x => x.Nutrition).Select(x => new
-                        GetNutrition
-                        {
-                            NutritionID = x.Id.ToString(),
-                            Value = x.Value,
-                            ValueType = x.ValueType.ToString(),
-                        }).ToList(),
-                        Serve = x.Recipie.Serve,
-                        Title = x.Recipie.Title,
-                        UserLikes = x.Recipie.UserLikes != null ? x.Recipie.UserLikes.Count() : 0,
-                        LikedValue = _context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Count()>0 ? (_context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Select(x => Convert.ToInt32(x.value)).Sum() / _context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Count()).ToString():"0",
+                            RecipieId = x.Recipie.Id.ToString(),
+                            Calories = x.Recipie.Calories,
+                            Carb = x.Recipie.Carb,
+                            CategoryID = x.Recipie.CategoryID.ToString(),
+                            CategoryName = x.Recipie.Category.CategoryName,
+                            Description = x.Recipie.Description,
+                            Fat = x.Recipie.Fat,
+                            ImageUrl = x.Recipie.ImageUrl,
+                            PreparationTime = x.Recipie.PreparationTime,
+                            Protein = x.Recipie.Protein,
+                            RecipieSteps = x.Recipie.RecipieSteps.OrderBy(x => x.StepNumber).Select(x => new GetRecipieSteps
+                            {
+                                Description = x.Description,
+                                Order = x.StepNumber,
+                                RecipieID = x.Id.ToString(),
+                            }).ToList(),
+                            RecipieNutritions = _context.RecipieNutritions.Where(y => y.RecipieId == x.Id).Include(x => x.Nutrition).Select(x => new
+                            GetNutrition
+                            {
+                                NutritionID = x.Id.ToString(),
+                                Value = x.Value,
+                                ValueType = x.ValueType.ToString(),
+                            }).ToList(),
+                            Serve = x.Recipie.Serve,
+                            Title = x.Recipie.Title,
+                            UserLikes = x.Recipie.UserLikes != null ? x.Recipie.UserLikes.Count() : 0,
+                            LikedValue = _context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Count() > 0 ? (_context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Select(x => Convert.ToInt32(x.value)).Sum() / _context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Count()).ToString() : "0",
 
-                    }).ToList();
+                        }).ToList();
 
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
+                    {
+
+                    }
+                    return BaseResult<List<GetRecipies>>.Successed(recipies);
+                }
+                return BaseResult<List<GetRecipies>>.Failure("Kullanıcıya ait tarif bulunamadı");
+            }
+            catch (Exception ex)
+            {
+                return BaseResult<List<GetRecipies>>.Failure("Bilinmeyen bir hata oluştu");
+            }
+        }
+
+        [HttpGet("/recipie/get-favorite-recipie")]
+        public async Task<BaseResult<List<GetRecipies>>> GetFavoriteRecipie([FromQuery] string id)
+        {
+            List<Recipie> userRecipies = new();
+            try
+            {
+                var userLikedRecipies = await _context.UserLikedRecipies.Where(x => x.UserId == Guid.Parse(id))
+                    .AsNoTracking()
+                    .Select(x => x.RecipieId)
+                    .ToListAsync();
+                if (userLikedRecipies.Count > 0)
+                {
+                    userRecipies = await _context.Recipies.Where(x => userLikedRecipies.Contains(x.Id)).ToListAsync();
+                }
+                if (userRecipies.Count > 0)
+                {
+                    List<GetRecipies> recipies = new List<GetRecipies>();
+                    try
+                    {
+                        recipies = userRecipies.Select(x => new GetRecipies
+                        {
+                            RecipieId = x.Id.ToString(),
+                            Calories = x.Calories,
+                            Carb = x.Carb,
+                            CategoryID = x.CategoryID.ToString(),
+                            CategoryName = x.Category.CategoryName,
+                            Description = x.Description,
+                            Fat = x.Fat,
+                            ImageUrl = x.ImageUrl,
+                            PreparationTime = x.PreparationTime,
+                            Protein = x.Protein,
+                            RecipieSteps = x.RecipieSteps.OrderBy(x => x.StepNumber).Select(x => new GetRecipieSteps
+                            {
+                                Description = x.Description,
+                                Order = x.StepNumber,
+                                RecipieID = x.Id.ToString(),
+                            }).ToList(),
+                            RecipieNutritions = _context.RecipieNutritions.Where(y => y.RecipieId == x.Id).Include(x => x.Nutrition).Select(x => new
+                            GetNutrition
+                            {
+                                NutritionID = x.Id.ToString(),
+                                Value = x.Value,
+                                ValueType = x.ValueType.ToString(),
+                            }).ToList(),
+                            Serve = x.Serve,
+                            Title = x.Title,
+                            UserLikes = x.UserLikes != null ? x.UserLikes.Count() : 0,
+                            LikedValue = _context.UserLikedRecipies.Where(y => y.RecipieId == x.Id).Count() > 0 ? (_context.UserLikedRecipies.Where(y => y.RecipieId == x.Id).Select(x => Convert.ToInt32(x.value)).Sum() / _context.UserLikedRecipies.Where(y => y.RecipieId == x.Id).Count()).ToString() : "0",
+
+                        }).OrderByDescending(x => Convert.ToInt32(x.LikedValue)).Take(10).ToList();
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    return BaseResult<List<GetRecipies>>.Successed(recipies);
+                }
+                return BaseResult<List<GetRecipies>>.Failure("Beğendiğiniz tarif bulunamadı");
+            }
+            catch (Exception ex)
+            {
+                return BaseResult<List<GetRecipies>>.Failure("Bilinmeyen bir hata oluştu");
+            }
+        }
+
+        [HttpGet("/recipie/get-trendingRecipie")]
+        public async Task<BaseResult<List<GetRecipies>>> GetTrendingRecipies()
+        {
+            try
+            {
+                var userRecipies = await _context.UserRecipies
+                    .Include(x => x.User)
+                    .Include(x => x.Recipie)
+                    .ThenInclude(x => x.Category)
+                    .Include(x => x.Recipie)
+                    .ThenInclude(x => x.RecipieSteps)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                if (userRecipies.Count > 0)
+                {
+                    List<GetRecipies> recipies = new List<GetRecipies>();
+                    try
+                    {
+                        recipies = userRecipies.Select(x => new GetRecipies
+                        {
+                            RecipieId = x.Recipie.Id.ToString(),
+                            Calories = x.Recipie.Calories,
+                            Carb = x.Recipie.Carb,
+                            CategoryID = x.Recipie.CategoryID.ToString(),
+                            CategoryName = x.Recipie.Category.CategoryName,
+                            Description = x.Recipie.Description,
+                            Fat = x.Recipie.Fat,
+                            ImageUrl = x.Recipie.ImageUrl,
+                            PreparationTime = x.Recipie.PreparationTime,
+                            Protein = x.Recipie.Protein,
+                            RecipieSteps = x.Recipie.RecipieSteps.OrderBy(x => x.StepNumber).Select(x => new GetRecipieSteps
+                            {
+                                Description = x.Description,
+                                Order = x.StepNumber,
+                                RecipieID = x.Id.ToString(),
+                            }).ToList(),
+                            RecipieNutritions = _context.RecipieNutritions.Where(y => y.RecipieId == x.Id).Include(x => x.Nutrition).Select(x => new
+                            GetNutrition
+                            {
+                                NutritionID = x.Id.ToString(),
+                                Value = x.Value,
+                                ValueType = x.ValueType.ToString(),
+                            }).ToList(),
+                            Serve = x.Recipie.Serve,
+                            Title = x.Recipie.Title,
+                            UserLikes = x.Recipie.UserLikes != null ? x.Recipie.UserLikes.Count() : 0,
+                            LikedValue = _context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Count() > 0 ? (_context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Select(x => Convert.ToInt32(x.value)).Sum() / _context.UserLikedRecipies.Where(y => y.RecipieId == x.RecipieId).Count()).ToString() : "0",
+
+                        }).OrderByDescending(x => Convert.ToInt32(x.LikedValue)).Take(10).ToList();
+
+                    }
+                    catch (Exception ex)
                     {
 
                     }

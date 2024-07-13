@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RecipieLandAPI.Concrete;
 using RecipieLandAPI.Entity;
@@ -21,11 +22,20 @@ namespace RecipieLandAPI.Controllers
                 Description = "",
             };
         }
+        public static BaseResult SuccessedWithDesc(string id)
+        {
+
+            return new BaseResult
+            {
+                Success = true,
+                Description = id,
+            };
+        }
         public static BaseResult Failure(string description)
         {
             return new BaseResult
             {
-                Success = true,
+                Success = false,
                 Description = description,
             };
         }
@@ -42,7 +52,7 @@ namespace RecipieLandAPI.Controllers
             {
                 Success = true,
                 Description = "",
-                Data=data,
+                Data = data,
             };
         }
         public static BaseResult<T> Failure(string description)
@@ -59,8 +69,7 @@ namespace RecipieLandAPI.Controllers
     #region User Classes
     public class AddUser
     {
-        public string email { get; set; }
-        public string password { get; set; }
+        public string Id { get; set; }
         public string biography { get; set; }
         public string location { get; set; }
         public string profession { get; set; }
@@ -79,10 +88,15 @@ namespace RecipieLandAPI.Controllers
         public string profession { get; set; }
         public string webSite { get; set; }
         public string avatar { get; set; }
+        public string name { get; set; }
+        public string follower { get; set; }
+        public string following { get; set; }
+        public string recipieCount { get; set; }
     }
     public class UpdateUser
     {
         public string UserId { get; set; }
+        public string Name { get; set; }
         public string biography { get; set; }
         public string location { get; set; }
         public string profession { get; set; }
@@ -194,24 +208,45 @@ namespace RecipieLandAPI.Controllers
         {
             _context = context;
         }
+        public class CheckUser
+        {
+            public string email { get; set; }
+            public string password { get; set; }
+            public string name { get; set; }
+        }
+        public class SignInUser
+        {
+            public string email { get; set; }
+            public string password { get; set; }
+        }
         #region User 
         [HttpPost("/user/checkuser")]
-        public BaseResult CheckUsers(string email, string password)
+        public async Task<BaseResult> CheckUsers([FromBody] CheckUser user)
         {
 
-            if (_context.Users.Any(x => x.Email == email))
+            if (_context.Users.Any(x => x.Email == user.email))
             {
-                return BaseResult.Failure("Email boþ gönderilemez");
+                return BaseResult.Failure("Email kullanýlýyor. Lütfen baþka mail ile kaydýnýza devam ediniz");
             }
-            if (password == null)
+            if (user.password == null)
             {
                 return BaseResult.Failure("Parola boþ gönderilemez");
             }
-            if (password.Length < 8)
+            if (user.password.Length < 8)
             {
                 return BaseResult.Failure("Parola 8 haneden küçük olamaz");
             }
-            return BaseResult.Successed();
+            var newUser = new DefaultUser { Email = user.email, Password = user.password, Name = user.name };
+            try
+            {
+                _context.Users.Add(newUser);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return BaseResult.Failure("Beklenmedik bir hata!");
+            }
+            return BaseResult.SuccessedWithDesc(newUser.Id.ToString());
         }
         [HttpPost("/user/register")]
         public BaseResult AddUsers(AddUser user)
@@ -220,19 +255,15 @@ namespace RecipieLandAPI.Controllers
             {
                 return BaseResult.Failure("Beklenmedik bir hata!");
             }
-            DefaultUser addUser = new DefaultUser
-            {
-                Biography = user.biography,
-                Location = user.location,
-                Profession = user.profession,
-                Password = user.password,
-                Email = user.email,
-                WebSite = user.webSite,
-                AvatarUrl = user.avatar,
-            };
+            var data = _context.Users.FirstOrDefault(x => x.Id == Guid.Parse(user.Id));
+            data.Biography = user.biography;
+            data.Location = user.location;
+            data.Profession = user.profession;
+            data.WebSite = user.webSite;
+            data.AvatarUrl = user.avatar;
             try
             {
-                _context.Users.Add(addUser);
+                _context.Users.Update(data);
                 _context.SaveChanges();
             }
             catch (Exception ex)
@@ -242,7 +273,7 @@ namespace RecipieLandAPI.Controllers
             return BaseResult.Successed();
         }
         [HttpPost("/user/update")]
-        public BaseResult UpdateUser(UpdateUser user)
+        public BaseResult UpdateUser([FromBody] UpdateUser user)
         {
             if (user == null)
             {
@@ -257,6 +288,7 @@ namespace RecipieLandAPI.Controllers
             dbUser.Profession = user.profession;
             dbUser.WebSite = user.webSite;
             dbUser.AvatarUrl = user.avatar;
+            dbUser.Name = user.Name;
             try
             {
                 _context.Users.Update(dbUser);
@@ -270,13 +302,13 @@ namespace RecipieLandAPI.Controllers
         }
 
         [HttpPost("/user/get-user")]
-        public BaseResult<GetUser> GetUserInfo(Guid userId)
+        public BaseResult<GetUser> GetUserInfo([FromQuery] string userId)
         {
             GetUser getUser = new();
-            var user = _context.Users.FirstOrDefault(x => x.Id == userId);
+            var user = _context.Users.FirstOrDefault(x => x.Id == Guid.Parse(userId));
             if (user == null)
             {
-                return  BaseResult<GetUser>.Failure("Kullanýcý bulunamadý");
+                return BaseResult<GetUser>.Failure("Kullanýcý bulunamadý");
             }
             getUser.UserId = userId.ToString();
             getUser.biography = user.Biography;
@@ -286,16 +318,19 @@ namespace RecipieLandAPI.Controllers
             getUser.email = user.Email;
             getUser.webSite = user.WebSite;
             getUser.avatar = user.AvatarUrl;
-
-            return  BaseResult<GetUser>.Successed(getUser);
+            getUser.name = user.Name;
+            getUser.follower = _context.UserFollowings.Where(x => x.OwnUserId == Guid.Parse(userId)).Count().ToString();
+            getUser.following = _context.UserFollowings.Where(x => x.FollowerId == Guid.Parse(userId)).Count().ToString();
+            getUser.recipieCount = _context.UserRecipies.Where(x => x.UserRecipieId == Guid.Parse(userId)).Count().ToString();
+            return BaseResult<GetUser>.Successed(getUser);
         }
         [HttpPost("/sign-in/")]
-        public BaseResult<string> SingIn(string email, string password)
+        public BaseResult<string> SingIn([FromBody] SignInUser user)
         {
-            if (email == null || password == null)
+            if (user.email == null || user.password == null)
                 return BaseResult<string>.Failure("Þifre veya parola boþ gönderilemez");
-            if (_context.Users.Any(x => x.Email == email && x.Password == password))
-                return BaseResult<string>.Successed(_context.Users.FirstOrDefault(x => x.Email == email && x.Password == password).Id.ToString());
+            if (_context.Users.Any(x => x.Email == user.email && x.Password == user.password))
+                return BaseResult<string>.Successed(_context.Users.FirstOrDefault(x => x.Email == user.email && x.Password == user.password).Id.ToString());
             return BaseResult<string>.Failure("Þifre veya parola hatalý tekrar deneyin!!");
         }
         #endregion
