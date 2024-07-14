@@ -163,7 +163,7 @@ namespace RecipieLandAPI.Controllers
     {
         public string nutritionId { get; set; }
         public string value { get; set; }
-        public int valueType { get; set; }
+        //public int valueType { get; set; }
     }
     public class AddRecipieSteps
     {

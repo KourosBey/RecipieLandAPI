@@ -12,6 +12,7 @@ namespace RecipieLandAPI.Entity
     public class RecipieCategory : BaseEntity
     {
         public string CategoryName { get; set; }
+        public string CategoryImage { get; set; }
 
     }
 
